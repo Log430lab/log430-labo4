@@ -78,8 +78,9 @@ Dans Postman, faites quelques requêtes à `POST /orders`. Ensuite, accédez à 
 Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Dans un premier temps, nous ne modifierons pas ce script, nous l'activerons simplement à partir de l'interface web à Locust.
 
 Accédez à `http://localhost:8089` et appliquez les paramètres suivantes :
-- Number of users (nombre d'utilisateurs) : 100
-- Spawn rate (taux d'apparition des nouveaux utilisateurs) : 1 (par seconde)
+- **Host** : De préférence, exécutez le test de charge sur un serveur externe (par exemple, une VM dans Proxmox). Ouvrez le port 5000 et d'autres ports si nécessaire.
+- **Number of users (nombre d'utilisateurs)** : 100
+- **Spawn rate (taux d'apparition des nouveaux utilisateurs)** : 1 (par seconde)
 
 Lancez le test et observez les statistiques et graphiques dans Locust (onglet `Charts`). En un peu moins de 2 minutes, vous devriez observer que votre application reçoit une charge de requêtes équivalente à 100 utilisateurs simultanés.
 
