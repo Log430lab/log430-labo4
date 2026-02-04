@@ -13,6 +13,8 @@
 
 Dans ce laboratoire, on continuera à utiliser la même version du « store manager » développée au laboratoire 03, mais nous ferons quelques modifications. Le but n'est pas d'ajouter de nouvelles fonctionnalités, mais de mesurer et comparer la performance de lecture/écriture de l'application en utilisant MySQL et Redis. Après avoir mesuré et comparé, nous allons implémenter deux approches d'optimisation : caching et load balancing.
 
+En résumé, dans ce laboratoire, nous nous concentrerons non seulement sur la surveillance (mesure des variables et observation passive), mais aussi sur l'observabilité (agir sur nos observations pour modifier le logiciel ou son environnement).
+
 > ⚠️ **IMPORTANT** : Les documents ARC42 et ADR contenus dans ce dépôt sont identiques à ceux du laboratoire 03, car nous ne modifions pas l'architecture de l'application dans ce laboratoire.
 
 > 📝 NOTE : À partir de ce laboratoire, nous vous encourageons à utiliser la bibliothèque `logger` plutôt que la commande `print`. Bien que `print` fonctionne bien pour le débogage, l'utilisation d'un logger est une bonne pratique de développement logiciel car il offre [plusieurs avantages lorsque notre application entre en production](https://www.geeksforgeeks.org/python/difference-between-logging-and-print-in-python/). Vous trouverez un exemple d'utilisation du `logger` et plus de détails dans `src/stocks/commands/write_stock.py`.
@@ -78,11 +80,13 @@ Dans Postman, faites quelques requêtes à `POST /orders`. Ensuite, accédez à 
 Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Dans un premier temps, nous ne modifierons pas ce script, nous l'activerons simplement à partir de l'interface web à Locust.
 
 Accédez à `http://localhost:8089` et appliquez les paramètres suivantes :
-- **Host** : De préférence, exécutez le test de charge sur un serveur externe (par exemple, une VM dans Proxmox). Ouvrez le port 5000 et d'autres ports si nécessaire.
+- **Host** : De préférence, exécutez le test de charge sur un serveur externe (par exemple, une VM LXD). Ouvrez le port 5000 et d'autres ports si nécessaire. Si vous n'avez pas accès à une VM, vous pouvez installer [votre propre instance LXD](https://canonical.com/lxd/install) sur une VM Linux dans votre ordinateur à l'aide d'Oracle VirtualBox ou d'un autre logiciel similaire. Alternativement, si cette option ne fonctionne pas non plus pour vous, vous pouvez exécuter le test de charge directement dans votre ordinateur, sans utiliser une VM.
 - **Number of users (nombre d'utilisateurs)** : 100
 - **Spawn rate (taux d'apparition des nouveaux utilisateurs)** : 1 (par seconde)
 
 Lancez le test et observez les statistiques et graphiques dans Locust (onglet `Charts`). En un peu moins de 2 minutes, vous devriez observer que votre application reçoit une charge de requêtes équivalente à 100 utilisateurs simultanés.
+
+> 📝 **NOTE** : Les indicateurs mesurés par Locust correspondent aux [4 métriques d'or](https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals) définis par Google.
 
 > 💡 **Question 1** : Quelle est la latence moyenne (50ème percentile) et le taux d'erreur observés avec 100 utilisateurs ? Illustrez votre réponse à l'aide des graphiques Locust (onglet `Charts`).
 
