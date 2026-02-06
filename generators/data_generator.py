@@ -10,11 +10,11 @@ import os
 from datetime import datetime, timedelta
 
 # Configuration
-NUM_USERS = 5000
+NUM_USERS = 500
 NUM_PRODUCTS = 500
-NUM_ORDERS = 1_000_000
-MIN_ITEMS_PER_ORDER = 2
-MAX_ITEMS_PER_ORDER = 5
+NUM_ORDERS = 300_000
+MIN_ITEMS_PER_ORDER = 1
+MAX_ITEMS_PER_ORDER = 3
 SQL_OUTPUT_DIR = "../db-init"
 REDIS_OUTPUT_DIR = "redis_mock_data"
 
