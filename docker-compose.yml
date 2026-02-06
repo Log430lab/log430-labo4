@@ -51,9 +51,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: labo04_db
-      MYSQL_USER: labo04
-      MYSQL_PASSWORD: labo04
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     networks:
       - labo04-network
     ports:
@@ -75,6 +75,10 @@ services:
       - labo04-network
     ports:
       - "6379:6379"
+    volumes:
+      - ./generators/redis_mock_data:/commands
+      - ./redis_entrypoint.sh:/redis_entrypoint.sh
+    entrypoint: /bin/bash /redis_entrypoint.sh
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 1m

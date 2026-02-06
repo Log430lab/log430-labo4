@@ -1,3 +1,13 @@
+# Generated mock data
+generators/redis_mock_data
+db-init/00_post_init.sql
+db-init/01_*
+db-init/02_*
+db-init/03_*
+db-init/04_*
+db-init/05_*
+db-init/06_*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
