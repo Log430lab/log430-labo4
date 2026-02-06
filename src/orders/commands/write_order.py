@@ -76,6 +76,7 @@ def add_order(user_id: int, items: list):
         return order_id
 
     except Exception as e:
+        logger.debug("Error:" + str(e))
         session.rollback()
         raise e
     finally:
