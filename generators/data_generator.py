@@ -11,8 +11,8 @@ from datetime import datetime, timedelta
 
 # Configuration
 NUM_USERS = 500
-NUM_PRODUCTS = 500
-NUM_ORDERS = 300_000
+NUM_PRODUCTS = 600
+NUM_ORDERS = 80_000
 MIN_ITEMS_PER_ORDER = 1
 MAX_ITEMS_PER_ORDER = 3
 SQL_OUTPUT_DIR = "../db-init"
