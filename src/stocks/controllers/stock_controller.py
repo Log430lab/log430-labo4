@@ -24,7 +24,7 @@ def get_stock(product_id):
     """Get stock quantities of a product"""
     try:
         stock = get_stock_by_id(product_id)
-        return jsonify(stock), 201
+        return jsonify(stock), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     

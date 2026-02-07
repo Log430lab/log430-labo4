@@ -33,7 +33,7 @@ def get_order(order_id):
     """Create order, use ReadOrder model"""
     try:
         order = get_order_by_id(order_id)
-        return jsonify(order), 201
+        return jsonify(order), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
