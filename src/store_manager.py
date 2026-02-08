@@ -14,11 +14,6 @@ from stocks.controllers.stock_controller import get_stock, set_stock, get_stock_
  
 app = Flask(__name__)
 
-# Auto-populate Redis 15s after API startup (to give enough time for the DB to start up as well)
-#thread = threading.Timer(2.0, populate_redis_on_startup)
-#thread.daemon = True
-#thread.start()
-
 @app.get('/health-check')
 def health():
     """Return OK if app is up and running"""
