@@ -36,7 +36,7 @@ Pendant ce laboratoire, nous réaliserons des **tests de charge** pour évaluer 
 
 - 500 utilisateurs
 - 10 000 articles (avec quantités de stock aléatoires)
-- 80 000 commandes (contenant 1-5 articles chacune, sélectionnés aléatoirement avec `user_id` aléatoire)
+- 80 000 commandes (contenant 1-5 articles chacune, en utilisant des `product_ids` et `user_ids` aléatoires)
 
 > 📝 **NOTE** : Ces chiffres correspondent aux données que 2 magasins pourraient accumuler en 1 an d'utilisation continue (≈110 commandes/jour), ou 3 magasins pendant 1 an (≈75 commandes/jour).
 
