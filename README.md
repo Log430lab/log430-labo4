@@ -17,7 +17,7 @@ En résumé, dans ce laboratoire, nous nous concentrerons non seulement sur la s
 
 > ⚠️ **IMPORTANT** : Les documents ARC42 et ADR contenus dans ce dépôt sont identiques à ceux du laboratoire 03, car nous ne modifions pas l'architecture de l'application dans ce laboratoire.
 
-> 📝 **NOTE** : À partir de ce laboratoire, nous vous encourageons à utiliser la bibliothèque `logger` plutôt que la commande `print`. Bien que `print` fonctionne bien pour le débogage, l'utilisation d'un logger est une bonne pratique de développement logiciel car il offre [plusieurs avantages lorsque notre application entre en production](https://www.geeksforgeeks.org/python/difference-between-logging-and-print-in-python/). Vous trouverez un exemple d'utilisation du `logger` et plus de détails dans `src/stocks/commands/write_stock.py`.
+> 📝 **NOTE** : À partir de ce laboratoire, nous vous encourageons à utiliser la bibliothèque `logger` plutôt que la commande `print`. Bien que `print` fonctionne bien pour le débogage, l'utilisation d'un logger est une bonne pratique de développement logiciel car elle offre [plusieurs avantages lorsque notre application entre en production](https://www.geeksforgeeks.org/python/difference-between-logging-and-print-in-python/). Vous trouverez un exemple d'utilisation du `logger` et plus de détails dans `src/stocks/commands/write_stock.py`.
 
 ### 1. Créez un nouveau dépôt à partir du gabarit et clonez le dépôt
 ```bash
@@ -48,7 +48,7 @@ Suivez les mêmes étapes que dans le laboratoire dernier.
 Suivez les mêmes étapes que dans le laboratoire dernier. Importez la collection disponible dans `/docs/collections`.
 
 ## 🧪 Activités pratiques
-Pendant le labo 02, nous avons implémenté le cache avec Redis. Pendant le labo 03, nous avons utilisé ce cache pour les endpoints des rapports. Dans ce labo, nous allons temporairement désactiver Redis pour mesurer la différence entre les lectures directement de MySQL vs Redis. Pour faciliter les comparaisons, dans ce laboratoire les méthodes qui font la génération de rapport dans `queries/read_order.py` ont 2 versions : une pour MySQL, une autre pour Redis.
+Pendant le labo 02, nous avons implémenté le cache avec Redis. Pendant le labo 03, nous avons utilisé ce cache pour les endpoints des rapports. Dans ce labo, nous allons temporairement désactiver Redis pour mesurer la différence entre les lectures directement de MySQL vs Redis. Pour faciliter les comparaisons, dans ce laboratoire les méthodes qui font la génération de rapports dans `queries/read_order.py` ont 2 versions : une pour MySQL, une autre pour Redis.
 
 ### 1. Désactivez le cache Redis temporairement
 Dans `queries/read_order.py`, remplacez l'appel à `get_highest_spending_users_redis` par `get_highest_spending_users_mysql`. Également, remplacez l'appel à `get_best_selling_products_redis` par `get_best_selling_products_mysql`. Ça sera important pour notre test de charge à partir de l'activité 5.
@@ -103,7 +103,7 @@ Accédez à `http://localhost:8089` et appliquez les paramètres suivants :
 
 Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques (onglet `Charts`) dans Locust. En un peu moins de 2 minutes, vous devriez observer que le Store Manager reçoit une charge de requêtes équivalente à 150 utilisateurs simultanés. Au cours de ce test, le temps de réponse par requête et le nombre d'échecs produits par l'application vont changer.
 
-> 📝 **NOTE** : Les indicateurs mesurés par Locust correspondent aux [4 métriques d'or](https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals) définis par Google.
+> 📝 **NOTE** : Les indicateurs mesurés par Locust correspondent aux [4 métriques d'or](https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals) définies par Google.
 
 > 💡 **Question 1** : Combien d'utilisateurs faut-il pour que le Store Manager commence à échouer ? Pour répondre à cette question, comparez la ligne `Failures` et la ligne `Users` dans les graphiques.
 
@@ -114,7 +114,7 @@ Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques 
 Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants (par exemple, vous pouvez copier-coller le tableau dans Excel/Google Sheets ou dans un fichier texte).
 
 ### 6. Optimisez la lecture des données des articles
-Nous avons vérifié que la performance du Store Manager ne répond pas à nos exigences (prise en charge de 150 utilisateurs simultanés). Avant d'envisager un changement d'architecture, base de données, de serveur Web ou une augmentation des ressources (RAM/CPU) sur notre serveur on-premises ou en nuage, il est raisonnable de vérifier si une optimisation du code existant est possible. Cette approche présente généralement le meilleur rapport coût-efficacité.
+Nous avons vérifié que la performance du Store Manager ne répond pas à nos exigences (prise en charge de 150 utilisateurs simultanés). Avant d'envisager un changement d'architecture, de base de données, de serveur Web ou une augmentation des ressources (RAM/CPU) sur notre serveur on-premises ou en nuage, il est raisonnable de vérifier si une optimisation du code existant est possible. Cette approche présente généralement le meilleur rapport coût-efficacité.
 
 Dans `orders/commands/write_order.py`, si nous regardons attentivement la fonction `add_order`, nous verrons qu'elle ne récupère pas les informations des articles de manière efficace. Si nous avions, par exemple, 100 articles dans notre commande, la fonction effectuerait 100 requêtes à la base de données pour chercher les informations sur les articles ([problème N+1](https://planetscale.com/blog/what-is-n-1-query-problem-and-how-to-solve-it)).
 
@@ -141,7 +141,7 @@ Redémarrez votre conteneur `store_manager` pour vous assurer qu'aucun processus
 docker compose restart store_manager                  
 ```
 
-Ensuite, **relancez les tests Locust** avec les mêmes paramètres de la dernière activité. Observez et répondez aux questions.
+Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Observez et répondez aux questions.
 
 > 💡 **Question 4** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour l'endpoint `POST /orders` ?
 
@@ -155,11 +155,11 @@ Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pou
 
 Dans `queries/read_order.py`, remplacez l'appel à `get_highest_spending_users_mysql` par `get_highest_spending_users_redis`. Également, remplacez l'appel à `get_best_selling_products_mysql` par `get_best_selling_products_redis`.
 
-Redémarrez votre conteneur `store_manager` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres de la dernière activité. Observez et enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants (par exemple, vous pouvez copier-coller le tableau dans Excel/Google Sheets ou dans un fichier texte).
+Redémarrez votre conteneur `store_manager` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Observez et enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants (par exemple, vous pouvez copier-coller le tableau dans Excel/Google Sheets ou dans un fichier texte).
 
-Contrairement à ce que l'on pourrait croire, vous constaterez une augmentation générale du temps de réponse et une diminution du nombre de requêtes traitées. Mais pourquoi ? Même si Redis est en mémoire et que l'accès à la mémoire est rapide, nous l'interrogeons très fréquemment pour obtenir la liste de commandes (`r.keys("order:*")`), puis nous parcourons cette liste, récupérons l'objet commande (`r.hgetall(key)`) et le traitons pour générer le rapport. Cette approche prend trop de temps, et la durée nécessaire augmente proportionnellement avec la quantité de commandes et d'articles par commande. Pour résoudre ce problème, nous devons conserver le rapport en cache pendant une période déterminée. Le rapport ne sera désormais plus mis à jour en temps réel, mais cette solution nous permettra de servir des rapports très récents de manière quasi instantanée.
+Contrairement à ce que l'on pourrait croire, vous constaterez une augmentation générale du temps de réponse et une diminution du nombre de requêtes traitées. Mais pourquoi ? Même si Redis est en mémoire et que l'accès à la mémoire est rapide, nous l'interrogeons très fréquemment pour obtenir la liste de commandes (`r.keys("order:*")`), puis nous parcourons cette liste, récupérons l'objet commande (`r.hgetall(key)`) et le traitons pour générer le rapport. Cette approche prend trop de temps, et la durée nécessaire augmente proportionnellement à la quantité de commandes et d'articles par commande. Pour résoudre ce problème, nous devons conserver le rapport en cache pendant une période déterminée. Le rapport ne sera désormais plus mis à jour en temps réel, mais cette solution nous permettra de servir des rapports très récents de manière quasi instantanée.
 
-Veuillez copier et coller le code optimisé fourni dans le répertoire `/optimization`. Vous devez mettre à jour l'implémentation de `src/orders/queries/read_order.py` et ajoutez l'extrait de code fourni au fichier `src/store_manager.py` après la déclaration de la variable `app`. n'oubliez pas de mettre à jour les appels aux rapports dans `src/orders/controllers/order_controller.py` en ajoutant le paramètre `skip_cache` dans le 2 fonctions :
+Veuillez copier et coller le code optimisé fourni dans le répertoire `/optimization`. Vous devez mettre à jour l'implémentation de `src/orders/queries/read_order.py` et ajouter l'extrait de code fourni au fichier `src/store_manager.py` après la déclaration de la variable `app`. N'oubliez pas de mettre à jour les appels aux rapports dans `src/orders/controllers/order_controller.py` en ajoutant le paramètre `skip_cache` dans les 2 fonctions :
 
 ```py
 def get_report_highest_spending_users(skip_cache=False):
@@ -178,7 +178,7 @@ Le code optimisé fera ce qui suit :
 
 > 📝 **NOTE** : Techniquement, régénérer les rapports toutes les 60 secondes est un gaspillage de ressources, car nous les régénérerons même si personne ne les utilise ou même lorsqu'il n'y a pas de changement. Cependant, il s'agit d'une optimisation simplifiée à des fins didactiques pour ce laboratoire. Si vous souhaitez en savoir plus sur les solutions robustes et élégantes aux problèmes de « cache stampede » et « thundering herds », veuillez lire cet article : [Thundering Herds: The Scalability Killer](https://docs.aonnis.com/blog/thundering-herds-the-scalability-killer).
 
-Redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres de la dernière activité.
+Redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité.
 
 > 💡 **Question 6** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ?
 
@@ -193,11 +193,11 @@ Pour tester le scénario suivant, utilisez le répertoire `load-balancer-config`
 - Copiez le texte dans `nginx-conf-to-copy-paste.txt` et collez-le dans le fichier `nginx.conf`
 Observez les modifications apportées à `docker-compose.yml`. 
 
-Finalement, redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres de la dernière activité. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants.
+Finalement, redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants.
 
 > 💡 **Question 8** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ? Pour cette question, la réponse dépendra de votre environnement d'exécution (par exemple, vous obtiendrez de meilleures performances en exécutant deux instances du Store Manager sur deux serveurs physiques distincts).
 
-> 💡 **Question 9** : Dans le fichier `nginx.conf`, il existe un attribut qui configure l'équilibrage de charge. Quelle politique d'équilibrage de charge utilisons-nous actuellement ? Consultez la documentation officielle Nginx si vous avez des questions.
+> 💡 **Question 9** : Dans le fichier `nginx.conf`, il existe un attribut qui configure l'équilibrage de charge. Quelle politique d'équilibrage de charge utilisons-nous actuellement ? Consultez la documentation officielle de Nginx si vous avez des questions.
 
 ### ⭐ Points clés à retenir de ce labo
 L'objectif de ce laboratoire n'est pas de résoudre tous les problèmes de performance de l'application Store Manager, mais de la pousser à ses limites afin que nous puissions observer comment elle réagit et l'optimiser en conséquence. Voici quelques points importants :
@@ -210,4 +210,4 @@ L'objectif de ce laboratoire n'est pas de résoudre tous les problèmes de perfo
 ## 📦 Livrables
 
 - Un fichier .zip contenant l'intégralité du code source du projet Labo 04.
-- Un rapport en .pdf répondant aux questions présentées dans ce document. Il est obligatoire d'illustrer vos réponses avec du code ou des captures d'écran/terminal.
+- Un rapport en .pdf répondant aux questions présentées dans ce document. Il est obligatoire d'illustrer vos réponses avec des extraits de code ou des captures d'écran/terminal.
