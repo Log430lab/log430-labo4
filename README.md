@@ -91,7 +91,7 @@ Dans Postman, faites quelques requêtes à `POST /orders`. Ensuite, accédez à 
 > 📝 **NOTE 2** : N'oubliez pas que la surveillance et l'observabilité ne concernent pas uniquement les développeurs. Dans un environnement professionnel, vous pouvez utiliser des outils tels que [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/) pour créer des graphiques plus intuitifs et faciles à utiliser qui peuvent être utilisés pour les autres membres de votre équipe pour rester informés sur l'état de l'application et pour prendre des décisions. 
 
 ### 5. Lancez un test de charge avec Locust
-Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Nous appelerons :
+Une fois la configuration de Prometheus terminée, nous pourrons commencer notre test de charge avec Locust. Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Nous appelerons :
 - L'endpoint `POST /orders` pour tester l'écriture. Le script créera des commandes en utilisant des articles, des quantités et des utilisateurs aléatoires.
 - Les endpoints `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` pour tester la lecture. 
 
@@ -109,7 +109,7 @@ Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques 
 
 ![Graphique du test de charge](./docs/load-test.jpg)
 
-> 💡 **Question 1** : Combien d'utilisateurs faut-il pour que le Store Manager commence à échouer ? Pour répondre à cette question, comparez la ligne `Failures` et la ligne `Users` dans les graphiques.
+> 💡 **Question 1** : Combien d'utilisateurs faut-il pour que le Store Manager commence à échouer dans votre environnement de test ? Pour répondre à cette question, comparez la ligne `Failures` et la ligne `Users` dans les graphiques.
 
 > 💡 **Question 2** : Sur l'onglet `Statistics`, comparez la différence entre les requêtes et les échecs pour tous les endpoints. Combien d'entre eux échouent plus de 50 % du temps ?
 
