@@ -81,46 +81,42 @@ Reconstruisez puis redémarrez le conteneur Docker.
 docker compose down -v && docker compose up -d --build                     
 ```
 
-> 💡 **Question 1** : Veuillez consulter le endpoint `/metrics` et observer les variables produites. Copiez et collez ici un exemple des métriques `orders`, `orders_reports_highest_spenders` et `orders_reports_best_sellers`.
+### 4. Observez les métriques dans Prometheus
+Dans Postman, faites quelques requêtes à `POST /orders`. Ensuite, accédez à Prometheus sur `http://localhost:9090` et exécutez une requête (query) à `orders_total`. Vous devriez voir une valeur numérique associée à la variable. Faites la même chose pour les deux autres `Counters`. Par exemple, si vous avez nommé le compteur `highest_spenders`, exécutez une requête à `highest_spenders_total`. Cliquez sur `Graph` pour voir la représentation visuelle de chaque variable. Faites quelques requêtes de plus pour voir le changement des variables.
 
-### 4. Installez et configurez Prometheus
-Téléchargez la dernière version de Prometheus pour votre système d'exploitation à partir de la [page des versions](https://prometheus.io/download/).
+> 📝 **NOTE 1** : Prometheus ne met pas automatiquement à jour les variables dans l'interface Web lorsqu'elles changent dans le serveur. Vous devez cliquer sur `Query` ou recharger la page Web pour voir les valeurs mises à jour.
 
-> 💡 **Question 2** : Quelle est la version la plus récente de Prometheus que vous avez téléchargée ?
+> 📝 **NOTE 2** : Dans un environnement professionnel, vous pouvez utiliser des outils tels que [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/) pour créer des graphiques plus intuitifs qui peuvent être utilisés pour les autres membres de votre équipe pour rester informés sur l'état de l'application et pour prendre des décisions. N'oubliez pas que la surveillance et l'observabilité ne concernent pas uniquement les développeurs.
 
-Extrayez l'archive téléchargée et naviguez dans le répertoire extrait. Ensuite, ouvrez le fichier `prometheus.yml` et ajoutez ce qui suit à la fin :
-```yaml
-scrape_configs:
-  - job_name: 'flask_app'
-    static_configs:
-      - targets: ['localhost:5000']
-```
+### 5. Lancez un test de charge avec Locust
+Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Nous appelerons :
+- L'endpoint `POST /orders` pour tester l'écriture. Le script créera des commandes en utilisant des articles aléatoires, quantités et utilisateurs aléatoires.
+- Les endpoints `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` pour tester la lecture. 
 
-Lancez Prometheus en exécutant le binaire Prometheus. Par exemple, sous Linux et macOS :
-```bash
-./prometheus --config.file=prometheus.yml
-```
+Dans ce labo, nous ne modifierons pas le `locustfile`, nous l'activerons simplement à partir de l'interface web de Locust. Si vous êtes curieux pour en savoir plus sur comment écrire des scripts de test de charge plus complexes, vous pouvez trouver plus d'informations sur la [documentation officielle de Locust](https://docs.locust.io/en/stable/writing-a-locustfile.html).
 
-Ouvrez http://localhost:9090/targets dans votre navigateur web. Vous devriez voir une liste indiquant l'état de votre instance `flask_app`. Si elle est marquée comme UP, vous avez configuré Prometheus avec succès. Si elle est DOWN ou absente, vérifiez que le port Flask est accessible et que la cible est correctement configurée.
+Accédez à `http://localhost:8089` et appliquez les paramètres suivants :
+- **Number of users (nombre total d'utilisateurs)** : 150
+- **Spawn rate (taux d'apparition des nouveaux utilisateurs)** : 2 (par seconde)
+- **Host** : Il est préférable d'exécuter les tests de charge sur un serveur externe (par exemple, une VM LXD). Ouvrez le port 5000 dans la VM et d'autres ports si nécessaire. Si vous n'avez pas accès à une VM, vous pouvez installer [votre propre instance LXD](https://canonical.com/lxd/install) sur une VM Linux dans votre ordinateur à l'aide d'Oracle VirtualBox ou d'un autre logiciel similaire. Alternativement, si cette option ne fonctionne pas non plus pour vous, vous pouvez exécuter les tests de charge directement dans votre ordinateur, sans utiliser une VM.
+- **Cliquez sur l'onglet Advanced Options > Run time (temps d'exécution)** : 120s (ou 2m)
 
-> 💡 **Question 3** : Veuillez ajouter une capture d'écran de http://localhost:9090/targets montrant que l'état de l'instance `flask_app` est UP.
+Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques (onglet `Charts`) dans Locust. En un peu moins de 2 minutes, vous devriez observer que le Store Manager reçoit une charge de requêtes équivalente à 150 utilisateurs simultanés. Au cours de ce test, le temps de réponse par requête et le nombre d'échecs produits par l'application vont changer.
 
-### 5. Testez la charge sans optimisation
-Installez et exécutez Locust en suivant [ces instructions](https://docs.locust.io/en/stable/installation.html). Locust est un outil de test de charge qui vous permet de simuler plusieurs utilisateurs interagissant avec votre application. Par défaut, dans Locust, chaque utilisateur simulé (`User`) exécute ses tâches en boucle et dans un ordre aléatoire.
+> 📝 **NOTE** : Les indicateurs mesurés par Locust correspondent aux [4 métriques d'or](https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals) définis par Google.
 
-Le fichier de test Locust se trouve dans `locust/locust_test.py`. Il crée des utilisateurs qui effectuent des requêtes sur les endpoints `/orders` (POST), `/orders/reports/highest-spenders` (GET) et `/orders/reports/best-sellers` (GET). L'objectif de ce test est de découvrir les goulots d'étranglement, puis de mesurer les améliorations apportées par les optimisations suivantes : cache et load balancing.
+> 💡 **Question 1** : Combien d'utilisateurs faut-il pour que le Store Manager commence à échouer ? Pour répondre à cette question, comparez la ligne `Failures` et la ligne `Users` dans les graphiques.
 
-Exécutez Locust avec la commande suivante. Il vous sera demandé de choisir un nombre d'utilisateurs simultanés (par exemple, 100 utilisateurs), un taux d'éclosion (nombre de nouveaux utilisateurs à créer par seconde, par exemple, 10) et une durée de test (300 secondes).
-```bash
-locust -f locust/locust_test.py
-```
+> 💡 **Question 2** : Sur l'onglet `Statistics`, comparez la différence entre les requêtes et les échecs pour tous les endpoints. Combien d'entre eux échouent plus de 50 % du temps ?
 
-Ce qui se passe en arrière-plan : Locust commencera à générer un nombre croissant d'utilisateurs jusqu'à ce qu'il atteigne le nombre total que vous avez spécifié. De façon continue, chaque utilisateur créé exécutera les tâches définies dans `locust_test.py` en boucle. 
+> 💡 **Question 3** : Observez les messages d'erreur affichés dans l'onglet `Failures`. Ces messages indiquent une défaillance dans quelle(s) partie(s) du Store Manager ? Par exemple, est-ce que le problème vient du service Python / MySQL / Redis / autre ?
 
-Observez l'onglet `Statistics` et regardez les métriques suivantes : requêtes totales, nombre d'échecs, temps de réponse médian, temps de réponse du 95e percentile et requêtes par seconde. Notez les valeurs pour chacun de vos endpoints. Vous pouvez également observer l'onglet `Charts` pour voir les graphiques de la charge et de la latence.
+Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants (par exemple, vous pouvez copier-coller le tableau dans Excel/Google Sheets ou dans un fichier texte).
 
-### 6. Optimisez l'implémentation du endpoint `/orders`
-Lorsque nous créons une commande dans `commands/write_order.py`, dans la méthode `add_order`, nous collectons les prix de tous les produits de la commande. Pour le moment, nous effectuons une requête à la base de données pour chaque produit (dans une boucle), ce qui peut être très lent lorsque nous ajoutons une commande qui comporte plusieurs produits.
+### 6. Optimisez la lecture des données des articles
+Nous avons vérifié que la performance du Store Manager ne répond pas à nos exigences (prise en charge de 150 utilisateurs simultanés). Avant d'envisager un changement d'architecture, base de données, de serveur Web ou une augmentation des ressources (RAM/CPU) sur notre serveur on-premises ou en nuage, il est raisonnable de vérifier si une optimisation du code existant est possible. Cette approche présente généralement le meilleur rapport coût-efficacité.
+
+Dans `orders/commands/write_order.py`, si nous regardons attentivement la fonction `add_order`, nous verrons qu'elle ne récupère pas les informations des articles de manière efficace. Si nous avions, par exemple, 100 articles dans notre commande, la fonction effectuerait 100 requêtes à la base de données pour chercher les informations sur les articles ([problème N+1](https://planetscale.com/blog/what-is-n-1-query-problem-and-how-to-solve-it)).
 
 ```python
 # ❌ Code non-optimisé
