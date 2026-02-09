@@ -33,6 +33,6 @@ def get_user(user_id):
     """Create user, use ReadUser model"""
     try:
         user = get_user_by_id(user_id)
-        return jsonify(user), 201
+        return jsonify(user), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

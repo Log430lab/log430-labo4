@@ -34,6 +34,6 @@ def get_product(product_id):
     """Create product, use ReadProduct model"""
     try:
         product = get_product_by_id(product_id)
-        return jsonify(product), 201
+        return jsonify(product), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

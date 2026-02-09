@@ -10,14 +10,9 @@ from flask import Flask, request, jsonify
 from orders.controllers.order_controller import create_order, remove_order, get_order, get_report_highest_spending_users, get_report_best_selling_products
 from orders.controllers.user_controller import create_user, remove_user, get_user
 from stocks.controllers.product_controller import create_product, remove_product, get_product
-from stocks.controllers.stock_controller import get_stock, set_stock, get_stock_overview, populate_redis_on_startup
+from stocks.controllers.stock_controller import get_stock, set_stock, get_stock_overview
  
 app = Flask(__name__)
-
-# Auto-populate Redis 15s after API startup (to give enough time for the DB to start up as well)
-thread = threading.Timer(2.0, populate_redis_on_startup)
-thread.daemon = True
-thread.start()
 
 @app.get('/health-check')
 def health():
