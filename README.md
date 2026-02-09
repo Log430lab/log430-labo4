@@ -103,9 +103,11 @@ Accédez à `http://localhost:8089` et appliquez les paramètres suivants :
 - **Host** : Il est préférable d'exécuter les tests de charge sur un serveur externe (par exemple, une VM LXD). Ouvrez le port 5000 dans la VM et d'autres ports si nécessaire. Si vous n'avez pas accès à une VM, vous pouvez installer [votre propre instance LXD](https://canonical.com/lxd/install) sur une VM Linux dans votre ordinateur à l'aide d'Oracle VirtualBox ou d'un autre logiciel similaire. Alternativement, si cette option ne fonctionne pas non plus pour vous, vous pouvez exécuter les tests de charge directement dans votre ordinateur, sans utiliser une VM.
 - **Cliquez sur l'onglet Advanced Options > Run time (temps d'exécution)** : 120s (ou 2m)
 
+> 📝 **NOTE** : Les indicateurs mesurés par Locust correspondent aux [4 métriques d'or](https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals) définies par Google.
+
 Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques (onglet `Charts`) dans Locust. Au cours de ce test, vous allez observer que le nombre d'utilisateurs, les requêtes et le temps de réponse augmentent progressivement. À un certain point, le nombre d'échecs (ligne rouge) devra commencer à augmenter rapidement et ne jamais diminuer, indiquant que le Store Manager a atteint sa limite de capacité de fonctionnement normal (capture d'écran ci-dessous).
 
-> 📝 **NOTE** : Les indicateurs mesurés par Locust correspondent aux [4 métriques d'or](https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals) définies par Google.
+![Graphique du test de charge](./docs/load-test.jpg)
 
 > 💡 **Question 1** : Combien d'utilisateurs faut-il pour que le Store Manager commence à échouer ? Pour répondre à cette question, comparez la ligne `Failures` et la ligne `Users` dans les graphiques.
 
