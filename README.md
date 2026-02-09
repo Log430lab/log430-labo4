@@ -91,13 +91,13 @@ Dans Postman, faites quelques requêtes à `POST /orders`. Ensuite, accédez à 
 > 📝 **NOTE 2** : N'oubliez pas que la surveillance et l'observabilité ne concernent pas uniquement les développeurs. Dans un environnement professionnel, vous pouvez utiliser des outils tels que [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/) pour créer des graphiques plus intuitifs et faciles à utiliser qui peuvent être utilisés pour les autres membres de votre équipe pour rester informés sur l'état de l'application et pour prendre des décisions. 
 
 ### 5. Lancez un test de charge avec Locust
-Une fois la configuration de Prometheus terminée, nous pourrons commencer notre test de charge avec Locust. Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Nous appelerons :
+Nos tests de charge seront effectués à l'aide de Locust, un outil web qui exécute les tests définis par nous dans `locustfiles`. Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant des utilisateurs réels. Il appelera :
 - L'endpoint `POST /orders` pour tester l'écriture. Le script créera des commandes en utilisant des articles, des quantités et des utilisateurs aléatoires.
 - Les endpoints `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` pour tester la lecture. 
 
 Dans ce labo, nous ne modifierons pas le `locustfile`, nous l'activerons simplement à partir de l'interface web de Locust. Si vous êtes curieux d'en savoir plus sur comment écrire des scripts de test de charge plus complexes, vous pouvez trouver plus d'informations sur la [documentation officielle de Locust](https://docs.locust.io/en/stable/writing-a-locustfile.html).
 
-Accédez à `http://localhost:8089` et appliquez les paramètres suivants :
+Pour exécuter le test, accédez à `http://localhost:8089` et appliquez les paramètres suivants :
 - **Number of users (nombre total d'utilisateurs)** : 150
 - **Spawn rate (taux d'apparition des nouveaux utilisateurs)** : 2 (par seconde)
 - **Host** : Il est préférable d'exécuter les tests de charge sur un serveur externe (par exemple, une VM LXD). Ouvrez le port 5000 dans la VM et d'autres ports si nécessaire. Si vous n'avez pas accès à une VM, vous pouvez installer [votre propre instance LXD](https://canonical.com/lxd/install) sur une VM Linux dans votre ordinateur à l'aide d'Oracle VirtualBox ou d'un autre logiciel similaire. Alternativement, si cette option ne fonctionne pas non plus pour vous, vous pouvez exécuter les tests de charge directement dans votre ordinateur, sans utiliser une VM.
