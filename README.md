@@ -37,12 +37,12 @@ Pendant ce labo, nous réaliserons des tests de charge. Ça veut dire qu'on mett
 - 10 000 articles (avec des quantités de stock aléatoires)
 - 80 000 commandes (avec 1-5 articles par commande, choisis de façon aléatoire)
 
-> 📝 **NOTE** : Ces chiffres correspondent à ce que 2 magasins pourraient accumuler dans 1 an d'utilisation continue du Store Manager s'ils enregistrent environ 110 commandes par jour, ou 3 magasins pendant 1 an avec 75 commandes par jour.
+> 📝 **NOTE** : Ces chiffres correspondent à ce que 2 magasins pourraient accumuler dans 1 an d'utilisation continue du Store Manager s'ils enregistrent environ 110 commandes par jour, ou 3 magasins pendant 1 an s'ils enregistrent 75 commandes par jour.
 
-Les commandes MySQL et Redis générées par le script seront exécutées de façon automatique pendant le démarrage des conteneurs Docker. Vous n'avez aucune action à effectuer, mais vous devrez peut-être patienter quelques secondes jusqu'à ce que la création soit terminée. Vous pouvez vérifier l'état de votre serveur MySQL ou Redis en consultant les logs Docker.
+Les commandes MySQL et Redis générées par le script seront exécutées de façon automatique pendant le démarrage des conteneurs Docker (étape 4). Vous n'avez aucune action à effectuer après le démarrage, mais vous devrez peut-être patienter quelques secondes jusqu'à ce que la création soit terminée. Vous pouvez vérifier l'état de votre serveur MySQL ou Redis en consultant les logs Docker.
 
 ### 4. Préparez l'environnement de développement
-Suivez les mêmes étapes que dans le laboratoire dernier.
+Suivez les mêmes étapes que dans le laboratoire dernier (ex. création d'un fichier `.env`, etc.).
 
 ### 5. Installez Postman
 Suivez les mêmes étapes que dans le laboratoire dernier. Importez la collection disponible dans `/docs/collections`.
@@ -76,9 +76,10 @@ def post_orders():
     counter_orders.inc()
 ```
 
-Reconstruisez puis redémarrez le conteneur Docker.
+Redémarrez les conteneurs Docker.
 ```bash
-docker compose down -v && docker compose up -d --build                     
+docker compose restart store_manager
+docker compose restart prometheus              
 ```
 
 ### 4. Observez les métriques dans Prometheus
@@ -86,7 +87,7 @@ Dans Postman, faites quelques requêtes à `POST /orders`. Ensuite, accédez à 
 
 > 📝 **NOTE 1** : Prometheus ne met pas automatiquement à jour les variables dans l'interface Web lorsqu'elles changent dans le serveur. Vous devez cliquer sur `Query` ou recharger la page Web pour voir les valeurs mises à jour.
 
-> 📝 **NOTE 2** : Dans un environnement professionnel, vous pouvez utiliser des outils tels que [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/) pour créer des graphiques plus intuitifs qui peuvent être utilisés pour les autres membres de votre équipe pour rester informés sur l'état de l'application et pour prendre des décisions. N'oubliez pas que la surveillance et l'observabilité ne concernent pas uniquement les développeurs.
+> 📝 **NOTE 2** : N'oubliez pas que la surveillance et l'observabilité ne concernent pas uniquement les développeurs. Dans un environnement professionnel, vous pouvez utiliser des outils tels que [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/) pour créer des graphiques plus intuitifs et faciles à utiliser qui peuvent être utilisés pour les autres membres de votre équipe pour rester informés sur l'état de l'application et pour prendre des décisions. 
 
 ### 5. Lancez un test de charge avec Locust
 Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Nous appelerons :
