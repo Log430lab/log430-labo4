@@ -191,15 +191,22 @@ Redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun
 Encore une fois, enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants.
 
 ### 8. Testez l'équilibrage de charge (load balancing) avec Nginx
-Pour tester le scénario suivant, utilisez le répertoire `load-balancer-config` :
+C'est plus intéressant de tester l'équilibrage de charge en utilisant 2 VMs distantes, car cela nous donne accès à plus de ressources de calcul et ainsi à une amélioration de performance plus significative. Cependant, si ce n'est pas possible pour vous, vous pouvez simplement créer plusieurs instances de l'application Store Manager dans votre Docker pour observer comment fonctionne nginx.
+
+#### 8.1 Si vous utilisez des serveurs distantes
+Pour tester le scénario suivant, utilisez les fichiers dans le répertoire `load-balancer-config/scenario_81` :
+- TODO
+
+#### 8.2 Si vous utilisez seulement votre ordinateur
+Pour tester le scénario suivant, utilisez le répertoire `load-balancer-config/scenario_82` :
 - Copiez le texte dans `docker-compose-to-copy-paste.txt` et collez-le dans `docker-compose.yml`
 - Créez un fichier `nginx.conf` dans le répertoire racine du projet.
 - Copiez le texte dans `nginx-conf-to-copy-paste.txt` et collez-le dans le fichier `nginx.conf`
 Observez les modifications apportées à `docker-compose.yml`. 
 
-Finalement, redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons pour la comparaison finale.
+Finalement, redémarrez vos conteneurs `store_manager`, `nginx` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons pour la comparaison finale.
 
-> 💡 **Question 8** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ? Pour cette question, la réponse dépendra de votre environnement d'exécution (par exemple, vous obtiendrez de meilleures performances en exécutant deux instances du Store Manager sur deux serveurs physiques distincts).
+> 💡 **Question 8** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ? La réponse dépendra de votre environnement d'exécution (par exemple, vous obtiendrez de meilleures performances en exécutant 2 instances de Store Manager sur 2 machines virtuelles plutôt que sur une seule).
 
 > 💡 **Question 9** : Dans le fichier `nginx.conf`, il existe un attribut qui configure l'équilibrage de charge. Quelle politique d'équilibrage de charge utilisons-nous actuellement ? Consultez la documentation officielle de Nginx si vous avez des questions.
 
