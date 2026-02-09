@@ -105,7 +105,7 @@ Accédez à `http://localhost:8089` et appliquez les paramètres suivants :
 
 > 📝 **NOTE** : Les indicateurs mesurés par Locust correspondent aux [4 métriques d'or](https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals) définies par Google.
 
-Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques (onglet `Charts`) dans Locust. Au cours de ce test, vous allez observer que le nombre d'utilisateurs, les requêtes et le temps de réponse augmentent progressivement. À un certain point, le nombre d'échecs (ligne rouge) devra commencer à augmenter rapidement et ne jamais diminuer, indiquant que le Store Manager a atteint sa limite de capacité de fonctionnement normal (capture d'écran ci-dessous).
+Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques (onglet `Charts`) dans Locust. Au cours de ce test, vous allez observer que le nombre d'utilisateurs, les requêtes et le temps de réponse augmentent progressivement. À un certain point, le nombre d'échecs (ligne rouge) devra commencer à augmenter rapidement et ne jamais diminuer, indiquant que le Store Manager a atteint sa limite de capacité de fonctionnement normal (capture d'écran ci-dessous). Le moment précis de la panne peut varier en fonction des ressources de calcul disponibles sur votre machine virtuelle ou votre ordinateur.
 
 ![Graphique du test de charge](./docs/load-test.jpg)
 
