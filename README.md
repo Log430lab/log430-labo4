@@ -11,7 +11,7 @@
 
 ## ⚙️ Setup
 
-Dans ce laboratoire, on continuera à utiliser la même version du Store Manager développée au laboratoire 03, mais nous ferons quelques petites modifications. Le but n'est pas d'ajouter de nouvelles fonctionnalités, mais de mesurer et comparer la performance de lecture/écriture de l'application en utilisant MySQL et Redis. Après avoir mesuré et comparé, nous allons implémenter deux approches d'optimisation : caching et load balancing.
+Dans ce laboratoire, on continuera à utiliser la même version du Store Manager développée au laboratoire 03, mais nous ferons quelques petites modifications. Le but n'est pas d'ajouter de nouvelles fonctionnalités, mais de mesurer et comparer la performance de lecture/écriture de l'application en utilisant MySQL et Redis. Après avoir mesuré et comparé, nous allons implémenter 3 approches d'optimisation : éliminer le problème N+1, implémenter le caching et le load balancing.
 
 En résumé, dans ce laboratoire, nous nous concentrerons non seulement sur la surveillance (mesure des variables et observation passive), mais aussi sur l'observabilité (agir sur nos observations pour modifier le logiciel ou son environnement).
 
