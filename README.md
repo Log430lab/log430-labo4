@@ -32,14 +32,15 @@ docker network create labo04-network
 ```
 
 ### 3. Générez des données fictives (mock data)
-Pendant ce labo, nous réaliserons des tests de charge. Ça veut dire qu'on mettra beaucoup de pression sur l'application pour observer ses limitations de performance. Pour créer un environnement de test similaire à un environnement de production dans un vrai magasin, il faut utiliser une grande quantité de données. Pour faire ça, nous utiliserons le script `generators/data_generator.py`. Exécutez ce script dans votre ordinateur **avant** de démarrer le conteneur Docker. Le script créera des commandes INSERT (MySQL) et SET (Redis) pour :
-- 500 utilisateurs (alloués aux commandes de façon aléatoire)
-- 10 000 articles (avec des quantités de stock aléatoires)
-- 80 000 commandes (avec 1-5 articles par commande, choisis de façon aléatoire)
+Pendant ce laboratoire, nous réaliserons des **tests de charge** pour évaluer les limitations de performance de l'application sous une forte pression. Pour simuler un environnement de production réaliste, nous utiliserons un volume important de données générées par le script `generators/data_generator.py`. Exécutez ce script sur votre ordinateur **avant de démarrer le conteneur Docker**. Il générera automatiquement des commandes INSERT (MySQL) et SET (Redis) pour :
 
-> 📝 **NOTE** : Ces chiffres correspondent à ce que 2 magasins pourraient accumuler dans 1 an d'utilisation continue du Store Manager s'ils enregistrent environ 110 commandes par jour, ou 3 magasins pendant 1 an s'ils enregistrent 75 commandes par jour.
+- 500 utilisateurs
+- 10 000 articles (avec quantités de stock aléatoires)
+- 80 000 commandes (contenant 1-5 articles chacune, sélectionnés aléatoirement avec `user_id` aléatoire)
 
-Les commandes MySQL et Redis générées par le script seront exécutées de façon automatique pendant le démarrage des conteneurs Docker (étape 4). Vous n'avez aucune action à effectuer après le démarrage, mais vous devrez peut-être patienter quelques secondes jusqu'à ce que la création soit terminée. Vous pouvez vérifier l'état de votre serveur MySQL ou Redis en consultant les logs Docker.
+> 📝 **NOTE** : Ces chiffres correspondent aux données que 2 magasins pourraient accumuler en 1 an d'utilisation continue (≈110 commandes/jour), ou 3 magasins pendant 1 an (≈75 commandes/jour).
+
+Les commandes MySQL et Redis générées seront exécutées automatiquement au démarrage des conteneurs Docker (étape 4). Aucune action supplémentaire n'est requise, mais l'initialisation peut prendre quelques secondes. Vous pouvez surveiller la progression en consultant les logs Docker de vos serveurs MySQL ou Redis.
 
 ### 4. Préparez l'environnement de développement
 Suivez les mêmes étapes que dans le laboratoire dernier (ex. création d'un fichier `.env`, etc.).
@@ -48,13 +49,13 @@ Suivez les mêmes étapes que dans le laboratoire dernier (ex. création d'un fi
 Suivez les mêmes étapes que dans le laboratoire dernier. Importez la collection disponible dans `/docs/collections`.
 
 ## 🧪 Activités pratiques
-Pendant le labo 02, nous avons implémenté le cache avec Redis. Pendant le labo 03, nous avons utilisé ce cache pour les endpoints des rapports. Dans ce labo, nous allons temporairement désactiver Redis pour mesurer la différence entre les lectures directement de MySQL vs Redis. Pour faciliter les comparaisons, dans ce laboratoire les méthodes qui font la génération de rapports dans `queries/read_order.py` ont 2 versions : une pour MySQL, une autre pour Redis.
+Pendant le labo 02, nous avons implémenté le cache avec Redis. Pendant le labo 03, nous avons utilisé ce cache pour les endpoints des rapports. Dans ce labo, nous allons temporairement désactiver Redis pour mesurer la différence entre les lectures à MySQL vs Redis. Pour faciliter les comparaisons, dans ce laboratoire les méthodes qui font la génération de rapports dans `queries/read_order.py` ont 2 versions : une pour MySQL, une autre pour Redis.
 
 ### 1. Désactivez le cache Redis temporairement
-Dans `queries/read_order.py`, remplacez l'appel à `get_highest_spending_users_redis` par `get_highest_spending_users_mysql`. Également, remplacez l'appel à `get_best_selling_products_redis` par `get_best_selling_products_mysql`. Ça sera important pour notre test de charge à partir de l'activité 5.
+Dans `queries/read_order.py`, remplacez l'appel à `get_highest_spending_users_redis` par `get_highest_spending_users_mysql`. Également, remplacez l'appel à `get_best_selling_products_redis` par `get_best_selling_products_mysql`. Ça sera important à partir de l'activité 5.
 
 ### 2. Instrumentez Flask avec Prometheus
-Dans `store_manager.py`, ajoutez un endpoint `/metrics`, qui permettra à Prometheus de lire l'état des variables que nous voulons observer dans l'application.
+Avant le test de charge proprement dit, préparons notre code pour l'observabilité. Dans `store_manager.py`, ajoutez un endpoint `/metrics`, qui permettra à Prometheus de lire l'état des variables que nous voulons observer dans l'application.
 ```python
 @app.route("/metrics")
 def metrics():
@@ -85,16 +86,16 @@ docker compose restart prometheus
 ### 4. Observez les métriques dans Prometheus
 Dans Postman, faites quelques requêtes à `POST /orders`. Ensuite, accédez à Prometheus sur `http://localhost:9090` et exécutez une requête (query) à `orders_total`. Vous devriez voir une valeur numérique associée à la variable. Faites la même chose pour les deux autres `Counters`. Par exemple, si vous avez nommé le compteur `highest_spenders`, exécutez une requête à `highest_spenders_total`. Cliquez sur `Graph` pour voir la représentation visuelle de chaque variable. Faites quelques requêtes de plus pour voir le changement des variables.
 
-> 📝 **NOTE 1** : Prometheus ne met pas automatiquement à jour les variables dans l'interface Web lorsqu'elles changent dans le serveur. Vous devez cliquer sur `Query` ou recharger la page Web pour voir les valeurs mises à jour.
+> 📝 **NOTE 1** : Prometheus ne met pas automatiquement à jour les variables dans l'interface Web lorsqu'elles changent sur le serveur. Vous devez cliquer sur `Query` ou recharger la page Web pour voir les valeurs mises à jour.
 
 > 📝 **NOTE 2** : N'oubliez pas que la surveillance et l'observabilité ne concernent pas uniquement les développeurs. Dans un environnement professionnel, vous pouvez utiliser des outils tels que [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/) pour créer des graphiques plus intuitifs et faciles à utiliser qui peuvent être utilisés pour les autres membres de votre équipe pour rester informés sur l'état de l'application et pour prendre des décisions. 
 
 ### 5. Lancez un test de charge avec Locust
 Le script `locustfiles/locustfile.py` lorsqu'il est exécuté, effectuera plusieurs appels vers des endpoints (représentés par les méthodes `@task`), simulant ainsi des utilisateurs réels. Nous appelerons :
-- L'endpoint `POST /orders` pour tester l'écriture. Le script créera des commandes en utilisant des articles aléatoires, quantités et utilisateurs aléatoires.
+- L'endpoint `POST /orders` pour tester l'écriture. Le script créera des commandes en utilisant des articles, des quantités et des utilisateurs aléatoires.
 - Les endpoints `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` pour tester la lecture. 
 
-Dans ce labo, nous ne modifierons pas le `locustfile`, nous l'activerons simplement à partir de l'interface web de Locust. Si vous êtes curieux pour en savoir plus sur comment écrire des scripts de test de charge plus complexes, vous pouvez trouver plus d'informations sur la [documentation officielle de Locust](https://docs.locust.io/en/stable/writing-a-locustfile.html).
+Dans ce labo, nous ne modifierons pas le `locustfile`, nous l'activerons simplement à partir de l'interface web de Locust. Si vous êtes curieux d'en savoir plus sur comment écrire des scripts de test de charge plus complexes, vous pouvez trouver plus d'informations sur la [documentation officielle de Locust](https://docs.locust.io/en/stable/writing-a-locustfile.html).
 
 Accédez à `http://localhost:8089` et appliquez les paramètres suivants :
 - **Number of users (nombre total d'utilisateurs)** : 150
@@ -110,7 +111,7 @@ Lancez le test et observez les statistiques (onglet `Statistics`) et graphiques 
 
 > 💡 **Question 2** : Sur l'onglet `Statistics`, comparez la différence entre les requêtes et les échecs pour tous les endpoints. Combien d'entre eux échouent plus de 50 % du temps ?
 
-> 💡 **Question 3** : Observez les messages d'erreur affichés dans l'onglet `Failures`. Ces messages indiquent une défaillance dans quelle(s) partie(s) du Store Manager ? Par exemple, est-ce que le problème vient du service Python / MySQL / Redis / autre ?
+> 💡 **Question 3** : Affichez quelques exemples des messages d'erreur affichés dans l'onglet `Failures`. Ces messages indiquent une défaillance dans quelle(s) partie(s) du Store Manager ? Par exemple, est-ce que le problème vient du service Python / MySQL / Redis / autre ?
 
 Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants (par exemple, vous pouvez copier-coller le tableau dans Excel/Google Sheets ou dans un fichier texte).
 
@@ -150,7 +151,7 @@ Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de l
 
 Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants (par exemple, vous pouvez copier-coller le tableau dans Excel/Google Sheets ou dans un fichier texte).
 
-> 📝 **NOTE** : Bien que cela ne s'applique pas à ce laboratoire, dans des applications plus complexes, de nombreuses mesures peuvent être implémentées pour améliorer la performance de lecture de la base de données, telles que la [création d'index](https://www.w3schools.com/mysql/mysql_create_index.asp) et la [normalisation](https://www.ibm.com/fr-fr/think/topics/database-normalization). Nous pouvons également augmenter le [nombre de connexions disponibles dans MySQL](https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_max_connections) pour prendre en charge plus d'utilisateurs. Bien que valables, ces solutions ne sont toutefois que des palliatifs si le problème fondamental réside dans un nombre important de requêtes simultanées. Ce sujet est abordé en plus de détail dans la dernière section de ce document.
+> 📝 **NOTE** : Bien que cela ne s'applique pas à ce laboratoire, les applications complexes peuvent améliorer leurs performances de lecture en implémentant plusieurs stratégies : la [création d'index](https://www.w3schools.com/mysql/mysql_create_index.asp), la [normalisation des données](https://www.ibm.com/fr-fr/think/topics/database-normalization), ou l'augmentation du [nombre de connexions MySQL](https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_max_connections). Cependant, ces solutions ne constituent que des mesures temporaires si le véritable enjeu réside dans la gestion d'un grand nombre de requêtes simultanées. Ce sujet est détaillé dans la dernière section de ce document.
 
 ### 7. Réactivez Redis et optimisez la génération des rapports
 
@@ -194,7 +195,7 @@ Pour tester le scénario suivant, utilisez le répertoire `load-balancer-config`
 - Copiez le texte dans `nginx-conf-to-copy-paste.txt` et collez-le dans le fichier `nginx.conf`
 Observez les modifications apportées à `docker-compose.yml`. 
 
-Finalement, redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants.
+Finalement, redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons pour la comparaison finale.
 
 > 💡 **Question 8** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ? Pour cette question, la réponse dépendra de votre environnement d'exécution (par exemple, vous obtiendrez de meilleures performances en exécutant deux instances du Store Manager sur deux serveurs physiques distincts).
 
@@ -203,7 +204,7 @@ Finalement, redémarrez vos conteneurs `store_manager` et `redis` pour vous assu
 ### ⭐ Points clés à retenir de ce labo
 L'objectif de ce laboratoire n'est pas de résoudre tous les problèmes de performance de l'application Store Manager, mais de la pousser à ses limites afin que nous puissions observer comment elle réagit et l'optimiser en conséquence. Voici quelques points importants :
 
-1. **La mesure est fondamentale**. Même lorsque votre intuition vous dit que votre nouvelle implémentation devrait apporter une amélioration (par exemple, le cache avec Redis), cela peut ne pas être le cas, car elle entraîne une conséquence imprévue (surcharge des serveurs Python et Redis). Cela peut être difficile à déterminer si vous ne mesurez pas les performances et n'observez pas les chiffres.
+1. **La mesure est fondamentale**. C’est par la mesure que nous pouvons déterminer ce qu’il faut optimiser et si notre optimisation a réussi. Même lorsque votre intuition vous dit que votre nouvelle implémentation devrait apporter une amélioration (par exemple, le cache avec Redis), cela peut ne pas être le cas, car elle entraîne une conséquence imprévue (surcharge des serveurs Python et Redis).
 2. **Les métriques servent à la prise de décision**. Il est important non seulement de mesurer et observer, mais aussi d'agir en fonction de nos mesures, et d'être en mesure de dire dans quelle mesure une implémentation est meilleure ou pire par rapport à une autre.
 3. **Les effets d'une optimisation ne sont pas isolés**. Lorsque nous modifions l'implémentation ou l'architecture de notre application pour améliorer une métrique, nous pouvons en détériorer une autre.
 4. Dans une application monolithique et synchrone telle que Store Manager, la **base de données devient rapidement une limitation**, en particulier si notre exigence est de prendre en charge un grand nombre d'utilisateurs simultanés. La solution consiste à procéder à une mise à l'échelle verticale (par exemple, ajouter plus de RAM/CPU à votre serveur), puis à une mise à l'échelle horizontale (équilibrage de charge), et enfin migrer vers une autre architecture (par exemple, les microservices event-driven). Nous aborderons certains de ces sujets dans les prochains laboratoires.
