@@ -34,7 +34,7 @@ docker network create labo04-network
 ### 3. Générez des données fictives (mock data)
 Pendant ce laboratoire, nous réaliserons des **tests de charge** pour évaluer les limitations de performance de l'application sous une forte pression. Pour simuler un environnement de production réaliste, nous utiliserons un volume important de données générées par le script `generators/data_generator.py`. Exécutez ce script sur votre ordinateur **avant de démarrer le conteneur Docker**. Il générera automatiquement des commandes INSERT (MySQL) et SET (Redis) pour :
 
-- 500 utilisateurs
+- 1000 utilisateurs
 - 10 000 articles (avec quantités de stock aléatoires)
 - 80 000 commandes (contenant 1-5 articles chacune, en utilisant des `product_ids` et `user_ids` aléatoires)
 

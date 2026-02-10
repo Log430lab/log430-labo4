@@ -9,8 +9,8 @@ import json
 import os
 from datetime import datetime, timedelta
 
-# Configuration
-NUM_USERS = 500
+# Dataset size and location configurations
+NUM_USERS = 1000
 NUM_PRODUCTS = 10_000
 NUM_ORDERS = 80_000
 MIN_ITEMS_PER_ORDER = 1
@@ -384,7 +384,7 @@ class DataGenerator:
     def print_summary(self):
         """Print summary"""
         print("\n" + "="*70)
-        print("✓ Generation Complete!")
+        print("✓ Generation complete!")
         print("="*70)
         
         sql_files = sorted([f for f in os.listdir(SQL_OUTPUT_DIR) if f.endswith('.sql')])
