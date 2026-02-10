@@ -3,8 +3,6 @@ services:
     build: .
     volumes:
       - .:/app
-    ports:
-      - "5000:5000"
     environment:
       - PYTHONUNBUFFERED=1
     networks:

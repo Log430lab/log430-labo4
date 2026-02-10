@@ -132,7 +132,7 @@ for product_id in product_ids:
 
 Pour résoudre ce problème, modifiez la méthode `add_order` de façon à collecter et récupérer tous les `product_ids` en une seule requête. Nous utiliserons toujours une boucle `for`, mais la requête de base de données **ne se trouvera pas dans la boucle**.
 ```python
-# ✅ Code optimisé
+# ✅ Code optimisé (implémentation partielle)
 product_prices = {}
 product_ids = [1, 2, 3] # TODO: Collectez le product_id de chaque OrderItem dans la commande
 products = session.query(Product).filter(Product.id.in_(product_ids)).all()
@@ -147,7 +147,7 @@ docker compose restart store_manager
 
 Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Observez et répondez aux questions.
 
-> 💡 **Question 4** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour l'endpoint `POST /orders` ?
+> 💡 **Question 4** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences dans les métriques pour l'endpoint `POST /orders` ?
 
 > 💡 **Question 5** : Si nous avions plus d'articles dans notre base de données (par exemple, 1 million), ou simplement plus d'articles par commande en moyenne, le temps de réponse de l'endpoint `POST /orders` augmenterait-il, diminuerait-il ou resterait-il identique ?
 
@@ -157,7 +157,7 @@ Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pou
 
 ### 7. Réactivez Redis et optimisez la génération des rapports
 
-Dans `queries/read_order.py`, remplacez l'appel à `get_highest_spending_users_mysql` par `get_highest_spending_users_redis`. Également, remplacez l'appel à `get_best_selling_products_mysql` par `get_best_selling_products_redis`.
+Étant donné que nous avons fait tout notre possible dans le code pour améliorer la vitesse d'écriture, nous allons maintenant tenter d'améliorer la vitesse de lecture en utilisant le cache.Dans `queries/read_order.py`, remplacez l'appel à `get_highest_spending_users_mysql` par `get_highest_spending_users_redis`. Également, remplacez l'appel à `get_best_selling_products_mysql` par `get_best_selling_products_redis`.
 
 Redémarrez votre conteneur `store_manager` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Observez et enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants (par exemple, vous pouvez copier-coller le tableau dans Excel/Google Sheets ou dans un fichier texte).
 
@@ -182,7 +182,7 @@ Le code optimisé fera ce qui suit :
 
 > 📝 **NOTE** : Techniquement, régénérer les rapports toutes les 60 secondes est un gaspillage de ressources, car nous les régénérerons même si personne ne les utilise ou même lorsqu'il n'y a pas de changement. Cependant, il s'agit d'une optimisation simplifiée à des fins didactiques pour ce laboratoire. Si vous souhaitez en savoir plus sur les solutions robustes et élégantes aux problèmes de « cache stampede » et « thundering herds », veuillez lire cet article : [Thundering Herds: The Scalability Killer](https://docs.aonnis.com/blog/thundering-herds-the-scalability-killer).
 
-Redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité.
+Redémarrez tous vos conteneurs (`docker compose restart`) pour vous assurer qu'aucun processus issu du test de charge précédent n'est en cours d'exécution. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité.
 
 > 💡 **Question 6** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ?
 
@@ -206,7 +206,14 @@ Pour tester le scénario suivant, utilisez le répertoire `load-balancer-config/
 - Créez un fichier `nginx.conf` dans le répertoire racine du projet.
 - Copiez le texte dans `nginx-conf-to-copy-paste.txt` et collez-le dans le fichier `nginx.conf`.
 
-Finalement, redémarrez tous vos conteneurs (`docker compose restart`) pour vous assurer que les modifications ont été correctement appliquées. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Cependant, cette fois-ci, envoyez vos requêtes de Locust à `nginx:80`. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons pour la comparaison finale.
+Finalement, reconstruisez et redémarrez vos conteneurs :
+```sh
+docker compose down
+docker compose build
+docker compose up -d
+```
+
+Attendez un peu que tous les conteneurs soient de nouveau opérationnels. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Cependant, cette fois-ci, envoyez vos requêtes de Locust à `nginx:80`. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons pour la comparaison finale.
 
 > 💡 **Question 8** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ? La réponse dépendra de votre environnement d'exécution (par exemple, vous obtiendrez de meilleures performances en exécutant 2 instances de Store Manager sur 2 machines virtuelles plutôt que sur une seule).
 
