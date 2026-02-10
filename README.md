@@ -191,21 +191,22 @@ Redémarrez vos conteneurs `store_manager` et `redis` pour vous assurer qu'aucun
 Encore une fois, enregistrez le contenu du tableau `Statistics`, nous l'utiliserons plus tard pour comparer les tests suivants.
 
 ### 8. Testez l'équilibrage de charge (load balancing) avec Nginx
-C'est plus intéressant de tester l'équilibrage de charge en utilisant 2 VMs distantes, car cela nous donne accès à plus de ressources de calcul et ainsi à une amélioration de performance plus significative. Cependant, si ce n'est pas possible pour vous, vous pouvez simplement créer plusieurs instances de l'application Store Manager dans votre Docker pour observer comment fonctionne nginx.
+C'est plus intéressant de tester l'équilibrage de charge en utilisant 2 VMs distantes, car cela nous donne accès à plus de ressources de calcul et ainsi à une amélioration de performance plus significative. Cependant, si ce n'est pas possible pour vous, vous pouvez simplement créer plusieurs instances de l'application Store Manager dans votre Docker pour observer comment fonctionne Nginx.
 
-#### 8.1 Si vous utilisez des machines virtuelles (VMs) distantes
+#### 8.1. Si vous utilisez des machines virtuelles (VMs) distantes
 Tout d'abord, déployez l'application Store Manager dans tous les VMs que vous voulez utiliser dans le test de charge. Le déploiement peut être automatique ou manuel. Appelez les endpoints sur chaque instance pour vous assurer de leur bon fonctionnement. Ensuite, dans votre ordinateur de développement, utilisez les fichiers dans le répertoire `load-balancer-config/scenario_81` :
+- Copiez le texte dans `docker-compose-to-copy-paste.txt` et collez-le dans `docker-compose.yml`. Cela créera un conteneur Nginx et 2 instances (replicas) à Store Manager dans votre Docker.
 - Créez un fichier `nginx.conf` dans le répertoire racine du projet.
 - Copiez le texte dans `nginx-conf-to-copy-paste.txt` et collez-le dans le fichier `nginx.conf`.
 - Ajoutez les adresses de vos VMs cibles dans `nginx.conf`. Bien que nous vous recommandions d'utiliser 2 instances pour ce test, vous pourriez théoriquement en utiliser autant que vous le souhaitez.
 
-#### 8.2 Si vous utilisez seulement votre ordinateur
+#### 8.2. Si vous utilisez seulement votre ordinateur
 Pour tester le scénario suivant, utilisez le répertoire `load-balancer-config/scenario_82` :
-- Copiez le texte dans `docker-compose-to-copy-paste.txt` et collez-le dans `docker-compose.yml`. Cela créera 2 instances (replicas) à Store Manager dans votre Docker.
+- Copiez le texte dans `docker-compose-to-copy-paste.txt` et collez-le dans `docker-compose.yml`. Cela créera un conteneur Nginx dans votre Docker.
 - Créez un fichier `nginx.conf` dans le répertoire racine du projet.
 - Copiez le texte dans `nginx-conf-to-copy-paste.txt` et collez-le dans le fichier `nginx.conf`.
 
-Finalement, redémarrez tous vos conteneurs (`docker compose restart`) pour vous assurer que les modifications ont été correctement appliquées. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Cependant, cette fois-ci, envoyez vos requêtes de Locust à `localhost:80` (nginx). Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons pour la comparaison finale.
+Finalement, redémarrez tous vos conteneurs (`docker compose restart`) pour vous assurer que les modifications ont été correctement appliquées. Ensuite, **relancez les tests Locust** avec les mêmes paramètres que ceux de la dernière activité. Cependant, cette fois-ci, envoyez vos requêtes de Locust à `nginx:80`. Enregistrez le contenu du tableau `Statistics`, nous l'utiliserons pour la comparaison finale.
 
 > 💡 **Question 8** : Sur l'onglet `Statistics`, comparez les résultats actuels avec les résultats du test de charge précédent. Est-ce que vous voyez quelques différences significatives dans les métriques pour les endpoints `POST /orders`, `GET /orders/reports/highest-spenders` et `GET /orders/reports/best-sellers` ? Dans quelle mesure la performance s'est-elle améliorée ou détériorée (par exemple, en pourcentage) ? La réponse dépendra de votre environnement d'exécution (par exemple, vous obtiendrez de meilleures performances en exécutant 2 instances de Store Manager sur 2 machines virtuelles plutôt que sur une seule).
 
