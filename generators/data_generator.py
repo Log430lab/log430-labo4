@@ -15,8 +15,9 @@ NUM_PRODUCTS = 10_000
 NUM_ORDERS = 80_000
 MIN_ITEMS_PER_ORDER = 1
 MAX_ITEMS_PER_ORDER = 5
-SQL_OUTPUT_DIR = "../db-init"
-REDIS_OUTPUT_DIR = "redis_mock_data"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SQL_OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "db-init")
+REDIS_OUTPUT_DIR = os.path.join(SCRIPT_DIR, "redis_mock_data")
 
 class DataGenerator:
     def __init__(self):
