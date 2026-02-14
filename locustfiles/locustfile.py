@@ -9,7 +9,7 @@ from locust.contrib.fasthttp import FastHttpUser
 import logging
 
 class FlaskAPIUser(FastHttpUser):
-    # Temps d'attente entre les requêtes (1 à 3 secondes)
+    # Temps d'attente entre les requêtes (1 à 2 secondes)
     wait_time = between(1, 2)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
