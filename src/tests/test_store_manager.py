@@ -54,7 +54,7 @@ def test_stock_flow(client):
     
     # 3. Verify stock - should have 5 units (GET /stocks/:id)
     response = client.get(f'/stocks/{product_id}')
-    assert response.status_code == 201, f"Failed to get stock: {response.get_json()}"
+    assert response.status_code == 200, f"Failed to get stock: {response.get_json()}"
     stock_data = response.get_json()
     assert stock_data['product_id'] == product_id
     assert stock_data['quantity'] == 5
@@ -91,7 +91,7 @@ def test_stock_flow(client):
     
     # 5. Verify stock again - should have 3 units (5 - 2) (GET /stocks/:id)
     response = client.get(f'/stocks/{product_id}')
-    assert response.status_code == 201, f"Failed to get stock after order: {response.get_json()}"
+    assert response.status_code == 200, f"Failed to get stock after order: {response.get_json()}"
     stock_data = response.get_json()
     assert stock_data['product_id'] == product_id
     assert stock_data['quantity'] == 3, f"Expected 3 units, got {stock_data['quantity']}"
