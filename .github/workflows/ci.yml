@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: Labo4
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -22,14 +23,52 @@ jobs:
       - name: Creer fichier .env
         run: |
           echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_NAME=labo02_db" >> .env
-          echo "DB_USER=labo02" >> .env
-          echo "DB_PASS=labo02" >> .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "REDIS_HOST=127.0.0.1" >> .env
-          echo "REDIS_PORT=6379" >> .env
-          echo "REDIS_DB=0" >> .env
+          echo "REDIS_PORT=${{ vars.REDIS_PORT }}" >> .env
+          echo "REDIS_DB=${{ vars.REDIS_DB }}" >> .env
 
       - name: Run tests
         working-directory: src
-        run: echo "Call pytest command here!"
+        run: python -m pytest
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout dépot
+        uses: actions/checkout@v4
+
+      - name: Build des conteneurs
+        run: docker compose build
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    environment: Labo4
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout dépot
+        uses: actions/checkout@v4
+
+      - name: Créer fichier .env
+        run: |
+          echo "DB_HOST=mysql" > .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "REDIS_HOST=redis" >> .env
+          echo "REDIS_PORT=${{ vars.REDIS_PORT }}" >> .env
+          echo "REDIS_DB=${{ vars.REDIS_DB }}" >> .env
+
+      - name: Créer le réseau Docker
+        run: docker network create labo04-network || true
+
+      - name: Démarrer les conteneurs
+        run: docker compose up -d --build
