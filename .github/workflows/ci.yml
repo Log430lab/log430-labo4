@@ -36,9 +36,12 @@ jobs:
           docker network create labo04-network || true
           docker compose up -d mysql redis
 
-      - name: Attendre que MySQL soit prêt
+      - name: Attendre que MySQL et Redis soient prêts
         run: |
           until docker compose exec -T mysql mysqladmin ping -h localhost -u root -proot --silent; do
+            sleep 2
+          done
+          until docker compose exec -T redis redis-cli ping | grep -q PONG; do
             sleep 2
           done
 
