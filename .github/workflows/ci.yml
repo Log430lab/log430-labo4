@@ -31,6 +31,17 @@ jobs:
           echo "REDIS_PORT=${{ vars.REDIS_PORT }}" >> .env
           echo "REDIS_DB=${{ vars.REDIS_DB }}" >> .env
 
+      - name: Démarrer les services
+        run: |
+          docker network create labo04-network || true
+          docker compose up -d mysql redis
+
+      - name: Attendre que MySQL soit prêt
+        run: |
+          until docker compose exec -T mysql mysqladmin ping -h localhost -u root -proot --silent; do
+            sleep 2
+          done
+
       - name: Run tests
         working-directory: src
         run: python -m pytest
